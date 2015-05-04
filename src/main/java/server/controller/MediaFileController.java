@@ -1,9 +1,6 @@
 package server.controller;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.IOUtils;
@@ -23,9 +20,13 @@ public class MediaFileController {
     @RequestMapping(value = "/media/{name}", method = RequestMethod.GET)
     public HttpEntity<byte[]> getDocument(@PathVariable String name) {
        // send it back to the client
+        System.out.println("received request for " + name);
        HttpHeaders httpHeaders = new HttpHeaders();
-       //httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-       //httpHeaders.setContentType(MediaType.IMAGE_JPEG);
+
+        //return new ResponseEntity<>(test.getBytes(), httpHeaders, HttpStatus.OK);
+       httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+       httpHeaders.setContentType(MediaType.IMAGE_JPEG);
+
        if (Files.exists(Paths.get(name))) {
            File f = new File(name);
            try {
@@ -37,7 +38,9 @@ public class MediaFileController {
                e.printStackTrace();
            }
        }
+
        return null;
+
     }
 
     @RequestMapping(value="/upload", method= RequestMethod.POST)
