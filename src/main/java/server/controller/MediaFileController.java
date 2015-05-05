@@ -1,7 +1,11 @@
 package server.controller;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.IOUtils;
 
@@ -14,6 +18,9 @@ import java.nio.file.Paths;
  */
 @RestController
 public class MediaFileController {
+
+    @Value("${ip}")
+    String myIp;
 
     // @RequestMapping(value = "/media/{contentName}", method = RequestMethod.GET)
     // public
@@ -54,7 +61,17 @@ public class MediaFileController {
                         new BufferedOutputStream(new FileOutputStream(new File(name)));
                 stream.write(bytes);
                 stream.close();
-                return "You successfully uploaded " + name + "!";
+
+                MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+
+                params.add("contentLocation", myIp);
+                params.add("contentName", "/" + name);
+                RestTemplate template = new RestTemplate();
+
+                template.postForObject("http://10.0.0.2:6666/location/add", params, String.class); //TODO: make sdicn app location configurable
+
+                //contentName, contentLocation, /location/add
+                return "You successfully uploaded " + name + "!" + myIp;
             } catch (Exception e) {
                 return "You failed to upload " + name + " => " + e.getMessage();
             }
