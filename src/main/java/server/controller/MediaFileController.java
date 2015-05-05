@@ -22,6 +22,9 @@ public class MediaFileController {
     @Value("${ip}")
     String myIp;
 
+    @Value("${sdicnapp.location}")
+    String appLocation;
+
     // @RequestMapping(value = "/media/{contentName}", method = RequestMethod.GET)
     // public
     @RequestMapping(value = "/media/{name}", method = RequestMethod.GET)
@@ -68,7 +71,7 @@ public class MediaFileController {
                 params.add("contentName", "/" + name);
                 RestTemplate template = new RestTemplate();
 
-                template.postForObject("http://10.0.0.2:6666/location/add", params, String.class); //TODO: make sdicn app location configurable
+                template.postForObject("http://" + appLocation + "/location/add", params, String.class);
 
                 //contentName, contentLocation, /location/add
                 return "You successfully uploaded " + name + "!" + myIp;
