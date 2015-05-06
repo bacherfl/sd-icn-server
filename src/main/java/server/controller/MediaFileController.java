@@ -1,5 +1,6 @@
 package server.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
@@ -7,6 +8,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import server.model.PrefetchInstruction;
+import server.service.Downloader;
+import server.service.DownloaderService;
 import sun.misc.IOUtils;
 
 import java.io.*;
@@ -22,8 +26,14 @@ public class MediaFileController {
     @Value("${ip}")
     String myIp;
 
+    @Value("${server.port}")
+    String myPort;
+
     @Value("${sdicnapp.location}")
     String appLocation;
+
+    @Autowired
+    DownloaderService downloaderService;
 
     // @RequestMapping(value = "/media/{contentName}", method = RequestMethod.GET)
     // public
@@ -67,7 +77,7 @@ public class MediaFileController {
 
                 MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
 
-                params.add("contentLocation", myIp);
+                params.add("contentLocation", myIp + ":" + myPort);
                 params.add("contentName", "/" + name);
                 RestTemplate template = new RestTemplate();
 
@@ -82,4 +92,11 @@ public class MediaFileController {
             return "You failed to upload " + name + " because the file was empty.";
         }
     }
+
+    @RequestMapping(value="/prefetch", method=RequestMethod.POST)
+    public void prefetchContent(@RequestBody PrefetchInstruction instruction) {
+        Downloader downloader = new Downloader();
+        downloader.receiveMessage(instruction); //TODO: enqueue in RabbitMQ queue to download in background
+    }
+
 }
